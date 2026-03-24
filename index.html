@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You & Me Forever</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=DM+Sans:wght@400;500;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --pink-bright: #FF6B9D;
+            --pink-light: #FFB4D4;
+            --blue-bright: #4D9FEC;
+            --blue-light: #A8D8F0;
+            --yellow: #FFD93D;
+            --purple: #B794F6;
+            --orange: #FF9F66;
+            --text-dark: #2D3142;
+            --white: #FFFFFF;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-dark);
+            overflow-x: hidden;
+            background: #FAFBFF;
+        }
+
+        /* Animated background blobs */
+        .bg-decorations {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .blob1 {
+            width: 300px;
+            height: 300px;
+            background: var(--pink-bright);
+            top: 10%;
+            left: -10%;
+            animation-delay: 0s;
+        }
+
+        .blob2 {
+            width: 250px;
+            height: 250px;
+            background: var(--blue-bright);
+            top: 50%;
+            right: -5%;
+            animation-delay: 3s;
+        }
+
+        .blob3 {
+            width: 200px;
+            height: 200px;
+            background: var(--yellow);
+            bottom: 10%;
+            left: 20%;
+            animation-delay: 6s;
+        }
+
+        .blob4 {
+            width: 180px;
+            height: 180px;
+            background: var(--purple);
+            top: 70%;
+            right: 30%;
+            animation-delay: 9s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.4;
+            }
+            25% {
+                transform: translate(40px, -40px) scale(1.15);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(-30px, 30px) scale(0.95);
+                opacity: 0.3;
+            }
+            75% {
+                transform: translate(20px, 10px) scale(1.05);
+                opacity: 0.45;
+            }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 12px 15px;
+            border-radius: 50px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #E0E0E0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .nav-dot.active {
+            width: 35px;
+            border-radius: 10px;
+            transform: scale(1.1);
+        }
+
+        .nav-dot[data-page="home"].active { background: var(--pink-bright); box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4); }
+        .nav-dot[data-page="story"].active { background: var(--blue-bright); box-shadow: 0 4px 15px rgba(77, 159, 236, 0.4); }
+        .nav-dot[data-page="reasons"].active { background: var(--yellow); box-shadow: 0 4px 15px rgba(255, 217, 61, 0.4); }
+        .nav-dot[data-page="game"].active { background: var(--purple); box-shadow: 0 4px 15px rgba(183, 148, 246, 0.4); }
+        .nav-dot[data-page="memories"].active { background: var(--orange); box-shadow: 0 4px 15px rgba(255, 159, 102, 0.4); }
+        .nav-dot[data-page="letter"].active { background: var(--pink-light); box-shadow: 0 4px 15px rgba(255, 180, 212, 0.4); }
+
+        .nav-dot:hover {
+            transform: scale(1.4);
+            background: #C0C0C0;
+        }
+
+        .nav-dot.active:hover {
+            transform: scale(1.2);
+        }
+
+        /* Page Container */
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding: 40px 20px 120px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page.active {
+            display: block;
+            position: relative;
+        }
+
+        .page.transitioning {
+            display: block;
+            position: fixed;
+        }
+
+        .page.slide-out-left {
+            transform: translateX(-100%);
+        }
+
+        .page.slide-out-right {
+            transform: translateX(100%);
+        }
+
+        .page.slide-in-left {
+            transform: translateX(0);
+        }
+
+        .page.slide-in-right {
+            transform: translateX(0);
+        }
+
+        .page.start-left {
+            transform: translateX(-100%);
+        }
+
+        .page.start-right {
+            transform: translateX(100%);
+        }
+
+        .content-wrapper {
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        /* Home Page */
+        .hero {
+            position: relative;
+            padding: 0 0 20px 0;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .welcome-card {
+            background: white;
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 25px;
+            animation: cardSlideIn 0.8s ease backwards;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .welcome-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .welcome-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .welcome-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .welcome-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .welcome-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes cardSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, var(--pink-light), var(--blue-light));
+            border-radius: 50%;
+            opacity: 0.15;
+        }
+
+        .quote {
+            font-size: 20px;
+            line-height: 1.7;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            font-family: 'Caveat', cursive;
+            font-size: 24px;
+        }
+
+        .quote-author {
+            font-size: 14px;
+            color: var(--blue-bright);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Story Timeline */
+        h2 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--text-dark);
+            animation: headerFadeIn 0.8s ease backwards;
+            letter-spacing: -0.5px;
+        }
+
+        @keyframes headerFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 0;
+        }
+
+        .timeline-item {
+            background: white;
+            padding: 25px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: timelineSlideIn 0.8s ease backwards;
+        }
+
+        .timeline-item:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .timeline-item:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .timeline-item:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .timeline-item:nth-child(4) {
+            animation-delay: 0.5s;
+        }
+
+        .timeline-item:nth-child(odd) {
+            transform: rotate(-1.5deg);
+        }
+
+        .timeline-item:nth-child(even) {
+            transform: rotate(1.5deg);
+        }
+
+        .timeline-item:hover {
+            transform: rotate(0deg) scale(1.05) translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes timelineSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-40px) rotate(0deg);
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .timeline-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .timeline-item:nth-child(1) .timeline-badge {
+            background: var(--pink-bright);
+            color: white;
+        }
+
+        .timeline-item:nth-child(2) .timeline-badge {
+            background: var(--blue-bright);
+            color: white;
+        }
+
+        .timeline-item:nth-child(3) .timeline-badge {
+            background: var(--yellow);
+            color: var(--text-dark);
+        }
+
+        .timeline-item:nth-child(4) .timeline-badge {
+            background: var(--purple);
+            color: white;
+        }
+
+        .timeline-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .timeline-text {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text-dark);
+            opacity: 0.8;
+        }
+
+        /* Reasons Grid */
+        .reasons-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .reason-card {
+            background: white;
+            padding: 25px;
+            border-radius: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            animation: reasonPopIn 0.7s ease backwards;
+        }
+
+        .reason-card:nth-child(1) { animation-delay: 0.1s; }
+        .reason-card:nth-child(2) { animation-delay: 0.15s; }
+        .reason-card:nth-child(3) { animation-delay: 0.2s; }
+        .reason-card:nth-child(4) { animation-delay: 0.25s; }
+        .reason-card:nth-child(5) { animation-delay: 0.3s; }
+        .reason-card:nth-child(6) { animation-delay: 0.35s; }
+        .reason-card:nth-child(7) { animation-delay: 0.4s; }
+        .reason-card:nth-child(8) { animation-delay: 0.45s; }
+        .reason-card:nth-child(9) { animation-delay: 0.5s; }
+        .reason-card:nth-child(10) { animation-delay: 0.55s; }
+        .reason-card:nth-child(11) { animation-delay: 0.6s; }
+        .reason-card:nth-child(12) { animation-delay: 0.65s; }
+
+        @keyframes reasonPopIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .reason-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--pink-bright), var(--blue-bright), var(--yellow));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .reason-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .reason-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .reason-num {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            opacity: 0.08;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: var(--text-dark);
+        }
+
+        .reason-text {
+            font-size: 16px;
+            line-height: 1.7;
+            font-weight: 500;
+            color: var(--text-dark);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Game */
+        .game-section {
+            text-align: center;
+        }
+
+        .game-section h2 {
+            margin-bottom: 30px;
+        }
+
+        .game-intro {
+            transition: all 0.5s ease;
+        }
+
+        .game-intro.hidden {
+            display: none;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-container.playing {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            margin-top: 0;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            width: 100%;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .game-stats.active {
+            opacity: 1;
+            height: auto;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            opacity: 0.6;
+        }
+
+        .stat-value {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .stat-value.pulse {
+            animation: statPulse 0.4s ease;
+        }
+
+        @keyframes statPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.3);
+            }
+        }
+
+        .stat-box:nth-child(1) .stat-value {
+            color: var(--pink-bright);
+        }
+
+        .stat-box:nth-child(2) .stat-value {
+            color: var(--blue-bright);
+        }
+
+        #gameCanvas {
+            width: 100%;
+            max-width: 100%;
+            height: 320px;
+            background: linear-gradient(135deg, #FFF5F7 0%, #F0F9FF 100%);
+            border-radius: 25px;
+            position: relative;
+            cursor: crosshair;
+            touch-action: none;
+            border: 3px solid #F0F0F0;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #gameCanvas.active {
+            opacity: 1;
+            height: 320px;
+        }
+
+        .heart {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            animation: fall linear;
+            user-select: none;
+            filter: drop-shadow(0 4px 12px rgba(255, 107, 157, 0.5));
+        }
+
+        .heart::before,
+        .heart::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 32px;
+            border-radius: 20px 20px 0 0;
+            animation: heartBeat 1.2s ease-in-out infinite;
+        }
+
+        .heart::before {
+            left: 20px;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+
+        .heart::after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        .heart.color-0::before,
+        .heart.color-0::after { background: #FF6B9D; }
+        
+        .heart.color-1::before,
+        .heart.color-1::after { background: #FFB4D4; }
+        
+        .heart.color-2::before,
+        .heart.color-2::after { background: #FF1493; }
+        
+        .heart.color-3::before,
+        .heart.color-3::after { background: #FF69B4; }
+        
+        .heart.color-4::before,
+        .heart.color-4::after { background: #FF85C1; }
+        
+        .heart.color-5::before,
+        .heart.color-5::after { background: #FF4D94; }
+        
+        .heart.color-6::before,
+        .heart.color-6::after { background: #FF336B; }
+        
+        .heart.color-7::before,
+        .heart.color-7::after { background: #FFA5C8; }
+
+        @keyframes heartBeat {
+            0%, 100% {
+                transform: scale(1) rotate(-45deg);
+            }
+            50% {
+                transform: scale(1.15) rotate(-45deg);
+            }
+        }
+
+        .heart::after {
+            animation: heartBeat2 1.2s ease-in-out infinite;
+        }
+
+        @keyframes heartBeat2 {
+            0%, 100% {
+                transform: scale(1) rotate(45deg);
+            }
+            50% {
+                transform: scale(1.15) rotate(45deg);
+            }
+        }
+
+        .heart:active {
+            transform: scale(1.3);
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(320px) rotate(180deg);
+            }
+        }
+
+        .game-btn {
+            background: linear-gradient(135deg, var(--pink-bright) 0%, var(--purple) 100%);
+            color: white;
+            border: none;
+            padding: 22px 0;
+            width: 100%;
+            max-width: 280px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            margin: 25px auto 0;
+            display: block;
+            box-shadow: 0 12px 35px rgba(255, 107, 157, 0.5);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: 'Fredoka', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-btn::before {
+            content: '♥';
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .game-btn::after {
+            content: '♥';
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .game-btn:hover {
+            transform: translateY(-6px) scale(1.05);
+            box-shadow: 0 25px 60px rgba(255, 107, 157, 0.7);
+        }
+
+        .game-btn:hover::before {
+            left: 20px;
+            transform: translateY(-50%) scale(1.4) rotate(-10deg);
+        }
+
+        .game-btn:hover::after {
+            right: 20px;
+            transform: translateY(-50%) scale(1.4) rotate(10deg);
+        }
+
+        .game-btn:active {
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        .game-over {
+            display: none;
+            padding: 20px;
+            margin-top: 20px;
+            width: 100%;
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(183, 148, 246, 0.1));
+            border-radius: 25px;
+            text-align: center;
+        }
+
+        .game-over.show {
+            display: block;
+            animation: gameOverBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes gameOverBounce {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) translateY(-50px);
+            }
+            50% {
+                transform: scale(1.05) translateY(0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .game-over h3 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .final-score {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 56px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--pink-bright), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 10px 0;
+            animation: scorePulse 0.6s ease 0.3s backwards;
+        }
+
+        @keyframes scorePulse {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Memories */
+        .memory-grid {
+            display: grid;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .memory-card {
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: memorySlideIn 0.8s ease backwards;
+        }
+
+        .memory-card:nth-child(1) { animation-delay: 0.1s; }
+        .memory-card:nth-child(2) { animation-delay: 0.2s; }
+        .memory-card:nth-child(3) { animation-delay: 0.3s; }
+        .memory-card:nth-child(4) { animation-delay: 0.4s; }
+        .memory-card:nth-child(5) { animation-delay: 0.5s; }
+        .memory-card:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes memorySlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .memory-card:hover {
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .memory-img {
+            width: 100%;
+            height: 220px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .memory-card:hover .memory-img {
+            transform: scale(1.08);
+        }
+
+        .memory-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .memory-img::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .memory-card:hover .memory-img::before {
+            opacity: 0.1;
+            background: linear-gradient(135deg, var(--pink-bright), var(--blue-bright));
+        }
+
+        .img-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+        }
+
+        .memory-content {
+            padding: 25px;
+        }
+
+        .memory-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .memory-text {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text-dark);
+            opacity: 0.7;
+        }
+
+        /* Letter */
+        .letter-box {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 10px 10px 30px 30px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            margin-top: 30px;
+            position: relative;
+            animation: letterSlideIn 1s ease backwards;
+            animation-delay: 0.2s;
+        }
+
+        @keyframes letterSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .letter-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, var(--pink-bright), var(--blue-bright), var(--yellow), var(--purple));
+            border-radius: 30px 30px 0 0;
+        }
+
+        .letter-to {
+            font-family: 'Caveat', cursive;
+            font-size: 28px;
+            color: var(--pink-bright);
+            margin-bottom: 25px;
+        }
+
+        .letter-content {
+            font-size: 16px;
+            line-height: 1.9;
+            color: var(--text-dark);
+        }
+
+        .letter-content p {
+            margin-bottom: 20px;
+        }
+
+        .letter-from {
+            font-family: 'Caveat', cursive;
+            font-size: 24px;
+            color: var(--blue-bright);
+            text-align: right;
+            margin-top: 30px;
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            .hero-title {
+                font-size: 72px;
+            }
+
+            .reasons-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .memory-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            nav {
+                top: 30px;
+                bottom: auto;
+            }
+
+            .page {
+                padding: 100px 20px 60px;
+            }
+        }
+
+        /* Scroll indicator */
+        .scroll-hint {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: var(--text-dark);
+            opacity: 0.4;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translate(-50%, 0);
+            }
+            50% {
+                transform: translate(-50%, -10px);
+            }
+        }
+
+        @keyframes burstOut {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0);
+            }
+        }
+
+        @keyframes celebrationFall {
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-decorations">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+        <div class="blob blob3"></div>
+        <div class="blob blob4"></div>
+    </div>
+
+    <!-- Navigation Dots -->
+    <nav>
+        <button class="nav-dot active" data-page="home" title="Home"></button>
+        <button class="nav-dot" data-page="story" title="Story"></button>
+        <button class="nav-dot" data-page="reasons" title="Reasons"></button>
+        <button class="nav-dot" data-page="game" title="Game"></button>
+        <button class="nav-dot" data-page="memories" title="Memories"></button>
+        <button class="nav-dot" data-page="letter" title="Letter"></button>
+    </nav>
+
+    <!-- Home Page -->
+    <div class="page active" id="home">
+        <div class="content-wrapper">
+            <div class="hero">
+                <h2>You & Me</h2>
+                <p class="hero-subtitle">Every moment together is an adventure</p>
+            </div>
+
+            <div class="welcome-card">
+                <p class="quote">"In all the world, there is no heart for me like yours. In all the world, there is no love for you like mine."</p>
+            </div>
+
+            <div class="welcome-card">
+                <p class="quote">"I love you not only for what you are, but for what I am when I am with you."</p>
+            </div>
+
+            <div class="welcome-card">
+                <p class="quote">"You are my today and all of my tomorrows."</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Story Page -->
+    <div class="page" id="story">
+        <div class="content-wrapper">
+            <h2>Our Story</h2>
+
+            <div class="welcome-card" style="margin-bottom: 30px;">
+                <p class="quote">"Every love story is beautiful, but ours is my favorite."</p>
+                <!-- <p class="quote-author">Unknown</p> -->
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <span class="timeline-badge">The Beginning</span>
+                    <h3 class="timeline-title">When We First Met</h3>
+                    <p class="timeline-text">The day I met you, I knew my life would never be the same. Your smile lit up the room and my heart knew it had found its home.</p>
+                </div>
+
+                <div class="timeline-item">
+                    <span class="timeline-badge">First Met</span>
+                    <h3 class="timeline-title">Our First Adventure</h3>
+                    <p class="timeline-text">Every moment felt magical. The way you laughed, the way you looked at me I fell even deeper in love with you that day.</p>
+                </div>
+
+                <div class="timeline-item">
+                    <span class="timeline-badge">Special Moment</span>
+                    <h3 class="timeline-title">When I Knew for Sure</h3>
+                    <p class="timeline-text">There was a moment when everything just clicked. I realized that you weren't just someone I loved you were my person, my forever.</p>
+                </div>
+
+                <div class="timeline-item">
+                    <span class="timeline-badge">Today & Always</span>
+                    <h3 class="timeline-title">Building Our Future</h3>
+                    <p class="timeline-text">Every day with you is a new chapter in our beautiful story. I can't wait to see what adventures await us, because I know they'll be perfect with you by my side.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reasons Page -->
+    <div class="page" id="reasons">
+        <div class="content-wrapper">
+            <h2>Why I Love You</h2>
+
+            <div class="welcome-card" style="margin-bottom: 20px;">
+                <p class="quote">"I love you because the whole universe aligned us just so I could find you."</p>
+            </div>
+
+            <div class="reasons-grid">
+                <div class="reason-card">
+                    <span class="reason-num">01</span>
+                    <p class="reason-text">Your smile lights up my entire world and makes every bad day instantly better.</p>
+                </div>
+
+                <div class="reason-card">
+                    <span class="reason-num">02</span>
+                    <p class="reason-text">The way you care about people shows your beautiful heart and kind soul.</p>
+                </div>
+
+                <div class="reason-card">
+                    <span class="reason-num">03</span>
+                    <p class="reason-text">You make me laugh even when I don't feel like smiling. Your sense of humor is incredible.</p>
+                </div>
+
+                <div class="reason-card">
+                    <span class="reason-num">04</span>
+                    <p class="reason-text">You support my dreams and encourage me to be the best version of myself.</p>
+                </div>
+
+                <div class="reason-card">
+                    <span class="reason-num">05</span>
+                    <p class="reason-text">The way you look at me makes me feel like I'm the luckiest person alive.</p>
+                </div>
+
+                <div class="reason-card">
+                    <span class="reason-num">06</span>
+                    <p class="reason-text">Your strength and resilience inspire me every single day.</p>
+                </div>
+
+                <div class="reason-card">
+                    <span class="reason-num">07</span>
+                    <p class="reason-text">You understand me in ways no one else does. You truly see me.</p>
+                </div>
+
+                <div class="reason-card">
+                    <span class="reason-num">08</span>
+                    <p class="reason-text">Every moment with you feels like home, no matter where we are.</p>
+                </div>
+
+                <div class="reason-card">
+                    <span class="reason-num">09</span>
+                    <p class="reason-text">You make ordinary moments extraordinary just by being there.</p>
+                </div>
+
+                <div class="reason-card">
+                    <span class="reason-num">10</span>
+                    <p class="reason-text">You're not just my girlfriend you're my best friend, my partner, my everything.</p>
+                </div>
+
+                <div class="reason-card">
+                    <span class="reason-num">11</span>
+                    <p class="reason-text">The way you love me unconditionally makes me want to be a better person.</p>
+                </div>
+
+                <div class="reason-card">
+                    <span class="reason-num">12</span>
+                    <p class="reason-text">Because even on the hardest days, loving you is the easiest thing I've ever done.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Page -->
+    <div class="page" id="game">
+        <div class="content-wrapper">
+            <div class="game-section">
+                <h2>Catch My Love</h2>
+
+                <div class="welcome-card game-intro" id="gameIntro" style="margin-bottom: 30px;">
+                    <p class="quote">"Love feels like a game, and you're the one I never want to stop playing with."</p>
+                    <!-- <p class="quote-author">For You</p> -->
+                </div>
+
+                <div class="game-container" id="gameContainer">
+                    <div class="game-stats">
+                        <div class="stat-box">
+                            <div class="stat-label">Score</div>
+                            <div class="stat-value" id="score">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Time</div>
+                            <div class="stat-value" id="timer">30</div>
+                        </div>
+                    </div>
+
+                    <div id="gameCanvas"></div>
+
+                    <button class="game-btn" id="startBtn">Start Game</button>
+
+                    <div class="game-over" id="gameOver">
+                        <h3>Game Over!</h3>
+                        <div class="final-score" id="finalScore">0</div>
+                        <p style="font-size: 14px; opacity: 0.7; margin-bottom: 15px;">hearts caught</p>
+                        <p id="gameMessage" style="font-size: 16px; line-height: 1.7; font-weight: 500;"></p>
+                        <button class="game-btn" id="playAgainBtn">Play Again</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Memories Page -->
+    <div class="page" id="memories">
+        <div class="content-wrapper">
+            <h2>My Favorite Person</h2>
+
+            <div class="welcome-card" style="margin-bottom: 30px;">
+                <p class="quote">"If I had a flower for every time I thought of you, my garden would be endless."</p>
+            </div>
+
+            <div class="memory-grid">
+                <div class="memory-card">
+                    <div class="memory-img">
+                          <img src="1.jpeg" alt="Memory" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="memory-content">
+                        <h3 class="memory-title">Between Pages and Light</h3>
+                        <p class="memory-text">Where stories rest on shelves, she captures moments that last longer than words.</p>
+                    </div>
+                </div>
+
+                <div class="memory-card">
+                    <div class="memory-img">
+                          <img src="2.jpeg" alt="Memory_2" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="memory-content">
+                        <h3 class="memory-title">Seeing Stories Differently</h3>
+                        <p class="memory-text">She doesn't just read stories she frames them through her own lens.</p>
+                    </div>
+                </div>
+
+                <div class="memory-card">
+                    <div class="memory-img">
+                         <img src="3.jpeg" alt="Memory_3" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="memory-content">
+                        <h3 class="memory-title">A Quiet Kind of Beautiful</h3>
+                        <p class="memory-text">In a room full of books, she becomes a story of her own.</p>
+                    </div>
+                </div>
+
+                <div class="memory-card">
+                    <div class="memory-img">
+                         <img src="4.jpeg" alt="Memory_4" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="memory-content">
+                        <h3 class="memory-title">Focus in Moments</h3>
+                        <p class="memory-text">Stillness, light, and curiosity captured in a single frame.</p>
+                    </div>
+                </div>
+
+                <div class="memory-card">
+                    <div class="memory-img">
+                         <img src="5.jpeg" alt="Memory_5" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="memory-content">
+                        <h3 class="memory-title">Where Stories Meet Vision</h3>
+                        <p class="memory-text">Among novels and silence, she finds beauty worth remembering</p>
+                    </div>
+                </div>
+
+                <div class="memory-card">
+                    <div class="memory-img">
+                         <img src="6.jpeg" alt="Memory_6_" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="memory-content">
+                        <h3 class="memory-title">Her Perspective</h3>
+                        <p class="memory-text">Every place becomes meaningful when seen through her eyes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Letter Page -->
+    <div class="page" id="letter">
+        <div class="content-wrapper">
+            <h2>To You</h2>
+
+            <div class="welcome-card" style="margin-bottom: 30px;">
+                <p class="quote">"If I had a flower for every time I thought of you, I could walk through my garden forever."</p>
+            </div>
+
+            <div class="letter-box">
+                <div class="letter-to">My Dearest Love Amanda,</div>
+
+                <div class="letter-content">
+                    <p>I created this website because sometimes words spoken out loud aren't enough to express everything I feel in my heart. You deserve something special, something that shows you just how much you mean to me.</p>
+
+                    <p>From the moment you came into my life, everything changed. You brought light into my darkest days, laughter into my quietest moments, and love into every corner of my heart. You make me want to be better, to do better, to love better.</p>
+
+                    <p>Every day with you is a gift. Whether we're on an adventure or just sitting together in comfortable silence, I cherish every second. You've shown me what it means to be truly loved and to love without limits.</p>
+
+                    <p>I want you to know that no matter what life throws at us, I'll always be here. Through the good times and the challenging ones, through the laughter and the tears, I choose you. Every single day, I choose you.</p>
+
+                    <p>Thank you for being you for your kindness, your strength, your beautiful soul. Thank you for loving me, for believing in me, for making me feel like the luckiest person in the world.</p>
+
+                    <p>This website is just a small token of my love for you. I hope it makes you smile, makes you feel special, and reminds you that you are loved beyond measure.</p>
+
+                    <p>You are my today and all of my tomorrows.</p>
+                </div>
+
+                <div class="letter-from">Forever yours, Iman</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        const navDots = document.querySelectorAll('.nav-dot');
+        const pages = document.querySelectorAll('.page');
+
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const targetPage = dot.dataset.page;
+
+                navDots.forEach(d => d.classList.remove('active'));
+                dot.classList.add('active');
+
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                    if (page.id === targetPage) {
+                        page.classList.add('active');
+                        window.scrollTo(0, 0);
+                    }
+                });
+            });
+        });
+
+        // Game Logic
+        let score = 0;
+        let timeLeft = 30;
+        let gameActive = false;
+        let heartInterval;
+        let timerInterval;
+
+        const canvas = document.getElementById('gameCanvas');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const gameOver = document.getElementById('gameOver');
+        const finalScore = document.getElementById('finalScore');
+        const gameMessage = document.getElementById('gameMessage');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const gameIntro = document.getElementById('gameIntro');
+        const gameContainer = document.getElementById('gameContainer');
+        const gameStats = document.querySelector('.game-stats');
+
+        const heartColors = [
+            '#FF6B9D', // pink-bright
+            '#FFB4D4', // pink-light
+            '#FF1493', // deep pink
+            '#FF69B4', // hot pink
+            '#FF85C1', // light pink
+            '#FF4D94',  // bright pink
+            '#FF336B', // vibrant pink
+            '#FFA5C8'  // soft pink
+        ];
+
+        function createHeart() {
+            if (!gameActive) return;
+
+            const heart = document.createElement('div');
+            const colorIndex = Math.floor(Math.random() * heartColors.length);
+            heart.className = 'heart color-' + colorIndex;
+            heart.style.left = Math.random() * (canvas.offsetWidth - 50) + 'px';
+            heart.style.top = '-50px';
+            
+            heart.setAttribute('data-color', heartColors[colorIndex]);
+
+            const fallDuration = Math.random() * 2 + 3;
+            heart.style.animationDuration = fallDuration + 's';
+
+            heart.addEventListener('click', catchHeart);
+            heart.addEventListener('touchstart', catchHeart);
+
+            canvas.appendChild(heart);
+
+            setTimeout(() => {
+                if (heart.parentElement) {
+                    heart.remove();
+                }
+            }, fallDuration * 1000);
+        }
+
+        function catchHeart(e) {
+            e.preventDefault();
+            if (!gameActive) return;
+
+            score++;
+            scoreDisplay.textContent = score;
+            
+            // Pulse animation on score
+            scoreDisplay.classList.add('pulse');
+            setTimeout(() => scoreDisplay.classList.remove('pulse'), 400);
+
+            const heart = e.target.closest('.heart');
+            if (!heart) return;
+            
+            const rect = heart.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            // Create burst effect with small hearts
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.left = (rect.left - canvasRect.left + 20) + 'px';
+                particle.style.top = (rect.top - canvasRect.top + 20) + 'px';
+                particle.style.fontSize = '16px';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '1000';
+                particle.textContent = '❤';
+                particle.style.color = heart.getAttribute('data-color');
+                
+                const angle = (Math.PI * 2 * i) / 8;
+                const distance = 70;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                particle.style.animation = `burstOut 0.7s ease-out forwards`;
+                particle.style.setProperty('--tx', tx + 'px');
+                particle.style.setProperty('--ty', ty + 'px');
+                
+                canvas.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 700);
+            }
+
+            heart.style.transition = 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            heart.style.transform = 'scale(2) rotate(720deg)';
+            heart.style.opacity = '0';
+            heart.style.filter = 'blur(5px)';
+
+            setTimeout(() => {
+                heart.remove();
+            }, 600);
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 30;
+            gameActive = true;
+            scoreDisplay.textContent = '0';
+            timerDisplay.textContent = '30';
+            
+            // Hide intro card and button, show game
+            gameIntro.classList.add('hidden');
+            startBtn.style.display = 'none';
+            gameOver.classList.remove('show');
+            gameContainer.classList.add('playing');
+            canvas.classList.add('active');
+            gameStats.classList.add('active');
+            canvas.innerHTML = '';
+
+            // Create hearts at better intervals for smoother gameplay
+            heartInterval = setInterval(createHeart, 600);
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(heartInterval);
+            clearInterval(timerInterval);
+
+            finalScore.textContent = score;
+
+            let message = '';
+            if (score >= 45) {
+                message = 'Incredible! Just like you caught all these hearts, you\'ve captured mine completely!';
+            } else if (score >= 30) {
+                message = 'Amazing! You\'re as good at catching hearts as you are at stealing mine!';
+            } else if (score >= 15) {
+                message = 'Great job! But you already caught the most important heart - mine!';
+            } else {
+                message = 'That\'s okay! You don\'t need to catch these hearts - you already have mine forever!';
+            }
+
+            gameMessage.textContent = message;
+            
+            // Create celebration hearts burst
+            createCelebrationHearts();
+            
+            // Hide game canvas and stats immediately
+            canvas.classList.remove('active');
+            gameStats.classList.remove('active');
+            
+            // Show game over with surprise animation
+            setTimeout(() => {
+                gameOver.classList.add('show');
+            }, 300);
+            
+            // Results and Play Again button stay visible
+            // No auto-close - player controls when to restart
+        }
+
+        function createCelebrationHearts() {
+            const colors = ['#FF6B9D', '#FFB4D4', '#FF1493', '#FF69B4', '#FF85C1', '#FFA5C8'];
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.textContent = '💕';
+                    heart.style.position = 'fixed';
+                    heart.style.left = Math.random() * window.innerWidth + 'px';
+                    heart.style.top = '-50px';
+                    heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                    heart.style.pointerEvents = 'none';
+                    heart.style.zIndex = '9999';
+                    heart.style.animation = 'celebrationFall ' + (Math.random() * 2 + 3) + 's ease-out forwards';
+                    
+                    document.body.appendChild(heart);
+                    
+                    setTimeout(() => heart.remove(), 5000);
+                }, i * 100);
+            }
+        }
+
+        startBtn.addEventListener('click', startGame);
+        
+        playAgainBtn.addEventListener('click', () => {
+            // Reset everything when Play Again is clicked
+            gameOver.classList.remove('show');
+            gameContainer.classList.remove('playing');
+            gameIntro.classList.remove('hidden');
+            startBtn.style.display = 'block';
+            canvas.innerHTML = '';
+        });
+
+        // Swipe functionality for page navigation
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            
+            // Only process horizontal swipes (ignore vertical scrolls)
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > swipeThreshold) {
+                const currentPage = document.querySelector('.page.active');
+                const currentIndex = Array.from(pages).indexOf(currentPage);
+                
+                let newIndex;
+                
+                if (diffX > 0) {
+                    // Swipe right - go to previous page
+                    newIndex = currentIndex - 1;
+                } else {
+                    // Swipe left - go to next page
+                    newIndex = currentIndex + 1;
+                }
+                
+                // Make sure we stay within bounds
+                if (newIndex >= 0 && newIndex < pages.length) {
+                    const newPage = pages[newIndex];
+                    
+                    // Set up the new page position
+                    if (diffX > 0) {
+                        // Coming from left
+                        newPage.classList.add('transitioning', 'start-left');
+                    } else {
+                        // Coming from right
+                        newPage.classList.add('transitioning', 'start-right');
+                    }
+                    
+                    // Force reflow
+                    newPage.offsetHeight;
+                    
+                    // Start the transition
+                    currentPage.classList.add('transitioning');
+                    
+                    if (diffX > 0) {
+                        // Slide current page to right, new page from left
+                        currentPage.classList.add('slide-out-right');
+                        newPage.classList.remove('start-left');
+                        newPage.classList.add('slide-in-left');
+                    } else {
+                        // Slide current page to left, new page from right
+                        currentPage.classList.add('slide-out-left');
+                        newPage.classList.remove('start-right');
+                        newPage.classList.add('slide-in-right');
+                    }
+                    
+                    // Update navigation dots
+                    navDots.forEach(d => d.classList.remove('active'));
+                    navDots[newIndex].classList.add('active');
+                    
+                    // Clean up after transition
+                    setTimeout(() => {
+                        pages.forEach(page => {
+                            page.classList.remove('active', 'transitioning', 'slide-out-left', 'slide-out-right', 
+                                                 'slide-in-left', 'slide-in-right', 'start-left', 'start-right');
+                        });
+                        newPage.classList.add('active');
+                        window.scrollTo(0, 0);
+                    }, 600);
+                }
+            }
+        }
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        });
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        });
+
+        // Mouse swipe for desktop
+        let mouseDown = false;
+        let mouseStartX = 0;
+        let mouseStartY = 0;
+
+        document.addEventListener('mousedown', e => {
+            mouseDown = true;
+            mouseStartX = e.screenX;
+            mouseStartY = e.screenY;
+        });
+
+        document.addEventListener('mouseup', e => {
+            if (mouseDown) {
+                const diffX = e.screenX - mouseStartX;
+                const diffY = e.screenY - mouseStartY;
+                
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    touchStartX = mouseStartX;
+                    touchStartY = mouseStartY;
+                    touchEndX = e.screenX;
+                    touchEndY = e.screenY;
+                    handleSwipe();
+                }
+            }
+            mouseDown = false;
+        });
+
+        // Smooth page transitions
+        window.scrollTo(0, 0);
+    </script>
+</body>
+</html>
